@@ -1,4 +1,4 @@
-FROM java:8-alpine
+FROM eclipse-temurin:8-jdk-alpine
 MAINTAINER Your Name <you@example.com>
 
 ADD target/uberjar/example-webapp.jar /example-webapp/app.jar
