@@ -46,8 +46,9 @@ pipeline {
             steps {    
                 echo 'running unit tests in the builder image.'
                 script {
-                    builderImage.inside('-v $WORKSPACE:/output -u root') {
-                    /* Ignore below scripts - same reason as above step
+                    echo "WORKSPACE: $WORKSPACE"
+                    /* builderImage.inside('-v $WORKSPACE:/output -u root') {
+                    Ignore below scripts - same reason as above step
                     sh """
                         cd /output
                         lein test
