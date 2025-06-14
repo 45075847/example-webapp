@@ -47,13 +47,24 @@ pipeline {
                 echo 'running unit tests in the builder image.'
                 script {
                     echo "WORKSPACE: $WORKSPACE"
-                    /* builderImage.inside('-v $WORKSPACE:/output -u root') {
+                    builderImage.inside('-v $WORKSPACE:/output -u root') {
                     Ignore below scripts - same reason as above step
                     sh """
                         cd /output
                         lein test
                     """
-                    }*/
+                    }
+                }
+            }
+        }
+
+        stage('Build Production Image') {
+            steps {
+                echo 'Starting to build docker image'
+                script {
+                    productionImage = docker.build("${ACCOUNT_REGISTRY_PREFIX}/example-webapp:${env.GIT_COMMIT_HASH}")
+                    productionImage.push()
+                    productionImage.push("${env.GIT_BRANCH}")
                 }
             }
         }
