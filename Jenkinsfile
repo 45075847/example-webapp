@@ -19,7 +19,7 @@ pipeline {
                     echo "Git Commit Hash: ${GIT_COMMIT_HASH}"
                     env.GIT_COMMIT_HASH = GIT_COMMIT_HASH
                     echo 'Logging into the Private Registry'
-                    sh 'docker login --username=a1025z --password=Wldofdm999 ${ACCOUNT_REGISTRY_PREFIX}'
+                    sh 'docker login --username=a1025z --password=Wldofdm999$ ${ACCOUNT_REGISTRY_PREFIX}'
                 }
             }
         }
