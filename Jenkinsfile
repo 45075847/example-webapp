@@ -27,8 +27,11 @@ pipeline {
             steps {
                 echo 'Starting to build the project builder docker image'
                 script {
-                    echo 'ACCOUNT_REGISTRY_PREFIX: ${ACCOUNT_REGISTRY_PREFIX}'
-                    echo "Command: crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:${env.GIT_COMMIT_HASH}"
+                    echo 'ACCOUNT_REGISTRY_PREFIX: ${env.ACCOUNT_REGISTRY_PREFIX}'
+                    def tagName = "crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:${env.GIT_COMMIT_HASH}"
+                    if (!tagName.matches(/^[a-zA-Z0-9_][a-zA-Z0-9_\.-]{0,127}/)) {
+                        error "Invalid Docker tag: ${tagName}"
+                    }
                     //def builderImage = docker.build('crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:${env.GIT_COMMIT_HASH}', '-f Dockerfile.builder .')
                     /*builderImage.push()
                     builderImage.push("${env.env.BRANCH_NAME}")
