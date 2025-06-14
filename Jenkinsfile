@@ -27,8 +27,8 @@ pipeline {
             steps {
                 echo 'Starting to build the project builder docker image'
                 script {
-                    echo 'ACCOUNT_REGISTRY_PREFIX: ${env.ACCOUNT_REGISTRY_PREFIX}'
-                    def builderImage = docker.build("crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:${env.GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
+                    echo "ACCOUNT_REGISTRY_PREFIX: ${env.ACCOUNT_REGISTRY_PREFIX}"
+                    def builderImage = docker.build("${env.ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${env.GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
                     /*builderImage.push()
                     builderImage.push("${env.env.BRANCH_NAME}")
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
