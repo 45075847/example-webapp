@@ -1,3 +1,4 @@
+def builderImage
 def productionImage
 def ACCOUNT_REGISTRY_PREFIX
 def GIT_COMMIT_HASH 
@@ -28,7 +29,7 @@ pipeline {
                 echo 'Starting to build the project builder docker image'
                 script {
                     echo "ACCOUNT_REGISTRY_PREFIX: ${env.ACCOUNT_REGISTRY_PREFIX}"
-                    def builderImage = docker.build("${env.ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${env.GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
+                    builderImage = docker.build("${env.ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${env.GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
                     builderImage.push()
                     builderImage.push("${env.BRANCH_NAME}")
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
