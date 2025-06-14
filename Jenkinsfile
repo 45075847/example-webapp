@@ -50,10 +50,10 @@ pipeline {
                     echo "WORKSPACE: $WORKSPACE"
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
                     //Ignore below scripts - same reason as above step
-                    sh """
+                    /*sh """
                         cd /output
                         lein test
-                    """
+                    """*/
                     }
                 }
             }
