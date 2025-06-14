@@ -28,14 +28,15 @@ pipeline {
             steps {
                 echo 'Starting to build the project builder docker image'
                 script {
-                    builderImage = docker.build("${ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
-                    builderImage.push()
+                    echo '${ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${GIT_COMMIT_HASH}'
+                    builderImage = docker.build('${ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${GIT_COMMIT_HASH}', '-f Dockerfile.builder .')
+                    /*builderImage.push()
                     builderImage.push("${env.env.BRANCH_NAME}")
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
                     sh """
                         cd /output
                         lein uberjar
-                    """
+                    """*/
                     }
                 }
             }
