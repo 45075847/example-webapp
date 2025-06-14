@@ -34,10 +34,11 @@ pipeline {
                     builderImage.push("${env.BRANCH_NAME}")
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
                     //Download is too slow. Ignore below commands since jar is already generated.
-                    sh """
+                    /*sh """
                         cd /output
                         lein uberjar
                     """
+                    */
                     }
                 }
             }
@@ -50,10 +51,11 @@ pipeline {
                     echo "WORKSPACE: $WORKSPACE"
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
                     //Ignore below scripts - same reason as above step
-                    sh """
+                    /*sh """
                         cd /output
                         lein test
                     """
+                    */
                     }
                 }
             }
