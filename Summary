@@ -1,0 +1,139 @@
+2.1 Summary：
+- 安装Jenkins和Docker
+- 可选：在Jenkins前配置Nginx作为反向代理服务器
+
+配置Security Group
+配置及Start Instance
+
+解释：
+sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+
+sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
+
+sudo yum install java-17-openjdk-devel -y
+
+sudo yum install jenkins -y
+
+sudo systemctl start jenkins.service
+sudo systemctl enable jenkins.service
+
+Go into jenkins UI at http://ServerIP:8080 to install plugin and do initial setup of jenkins
+
+sudo yum install docker
+
+sudo systemctl start docker.service
+sudo systemctl enable docker.service
+
+谨慎使用 sudo usermod -a -G docker "user name"
+sudo usermod -a -G docker jenkins
+
+sudo reboot
+
+----------------------------------------------
+配置nginx反向代理服务器
+sudo yum install nginx
+
+编辑 Nginx 配置文件于/etc/nginx/conf.d/jenkins.conf. 文件具体内容参考AI如下.
+server {
+    listen 443 ssl;
+    server_name 8.148.29.29; //域名或服务器公网IP
+
+    ssl_certificate /etc/ssl/certs/jenkins.crt;
+    ssl_certificate_key /etc/ssl/private/jenkins.key;
+
+    location / {
+        proxy_pass http://localhost:8080;  # Jenkins 默认端口
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+server {
+    listen 80;
+    server_name 8.148.29.29; //实际域名
+    return 301 https://$server_name$request_uri;
+}
+
+其中需生成证书和私钥(开发和测试环境, 生产环境需采用其它方法)。步骤如下:
+sudo yum install openssl
+
+sudo openssl genrsa -out /etc/ssl/private/jenkins.key 2048
+sudo chmod 600 /etc/ssl/private/jenkins.key
+
+sudo openssl req -new -key /etc/ssl/private/jenkins.key -out /etc/ssl/certs/jenkins.csr
+sudo openssl x509 -req -days 365 -in /etc/ssl/certs/jenkins.csr -signkey /etc/ssl/private/jenkins.key -out /etc/ssl/certs/jenkins.crt
+
+openssl x509 -noout -modulus -in /etc/ssl/certs/jenkins.crt | openssl md5
+sudo openssl rsa -noout -modulus -in /etc/ssl/private/jenkins.key | openssl md5
+
+sudo nginx -t
+sudo systemctl restart nginx
+sudo systemctl enable nginx.service
+
+2.2 Summary：
+- 在阿里云配置后面所需的Docker Registry
+
+2.3 Summary:
+- 生成Build环境的Docker Image，推送到Docker Registry，运行
+- 生成Production App的Docker Image，推送到Docker Registry，运行
+
+git config --global user.name 45075847
+git config --global user.email nathan999@sina.com
+git init
+git add .
+git commit -m 'getting started'
+
+Builder Dockerfile 如下：
+------------------------
+FROM openjdk:8
+RUN apt-get update && apt-get install  -y curl
+RUN curl -o /usr/bin/lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+RUN chmod +x /usr/bin/lein
+
+sudo docker login --username=a1025z crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com
+sudo docker build -t example-webapp-builder:$(git rev-parse HEAD) -f Dockerfile.builder .
+sudo docker tag c8e87aec28b2 crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:$(git rev-parse HEAD)
+sudo docker push crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:$(git rev-parse HEAD)
+sudo docker run --rm -v "$PWD:/work" crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:$(git rev-parse HEAD) bash -c "cd /work; lein uberjar"
+
+Then the jar is generated at ./target, use below Dockerfile to build prod image.
+-----------------------------------------------
+FROM eclipse-temurin:8-jdk-alpine
+LABEL maintainer="Nathan Wan <nathanwan@OmegaPointer.com>"
+ADD target/uberjar/example-webapp.jar /example-webapp/app.jar
+EXPOSE 3000
+CMD ["java", "-jar", "/example-webapp/app.jar"]
+
+sudo docker build -t crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp:$(git rev-parse HEAD) .
+sudo docker push crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp:$(git rev-parse HEAD)
+sudo docker run --rm -p 3000:3000 crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp:$(git rev-parse HEAD)
+
+2.4
+Summary:
+- 创建git repository并上传代码
+- 生成密钥对，创建Jenkins项目，并把公钥和私钥分别放入github和Jenkins项目中。Jenkins运行并生成build.
+
+Create a new git repository "example-webapp"
+
+git init
+git add .
+git commit -m 'getting started'
+
+这里要求服务器上已经正确配置了SSH密钥，并且该密钥已经被添加到GitHub账户的SSH密钥列表中。
+git remote add origin git@github.com:45075847/example-webapp
+git push origin master
+
+ssh-keygen -f jenkins-key
+
+添加Jenkins "New Item" -> "Multibranch Pipeline", 并配置Branch Sources里面的Git信息(Private Key在这里配置)。
+添加公钥到github 45075847/example-webapp下面的deploy key.
+Jenkins会run pipeline并生成build.
+
+2.5
+Summary: 说明上节Jenkins Pipeline执行的主要步骤。
+- Checkout source code and log into registry
+- Make a builder docker image (output jar is generated here)
+- Run unit test
+- Build production docker image
