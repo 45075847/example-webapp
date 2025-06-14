@@ -32,10 +32,26 @@ pipeline {
                     builderImage.push()
                     builderImage.push("${env.BRANCH_NAME}")
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
-                    sh """
+                    //Download is too slow. Ignore below commands since jar is already generated.
+                    /*sh """
                         cd /output
                         lein uberjar
-                    """
+                    """*/
+                    }
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {    
+                echo 'running unit tests in the builder image.'
+                script {
+                    builderImage.inside('-v $WORKSPACE:/output -u root') {
+                    /* Ignore below scripts - same reason as above step
+                    sh """
+                        cd /output
+                        lein test
+                    """*/
                     }
                 }
             }
