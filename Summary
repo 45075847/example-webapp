@@ -134,6 +134,6 @@ Jenkins会run pipeline并生成build.
 2.5
 Summary: 说明上节Jenkins Pipeline执行的主要步骤。
 - Checkout source code and log into registry
-- Make a builder docker image (output jar is generated here)
+- Make a builder docker image (output jar is generated here), and upload it to Aliyun docker registry
 - Run unit test
-- Build production docker image
+- Build production docker image, and upload it to Aliyun docker registry
