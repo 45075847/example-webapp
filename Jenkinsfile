@@ -65,7 +65,7 @@ pipeline {
                 script {
                     productionImage = docker.build("${env.ACCOUNT_REGISTRY_PREFIX}/example-webapp:${env.GIT_COMMIT_HASH}")
                     productionImage.push()
-                    productionImage.push("${env.GIT_BRANCH}")
+                    productionImage.push("${env.GIT_BRANCH}") 
                 }
             }
         }
