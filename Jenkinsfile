@@ -36,8 +36,8 @@ pipeline {
                     sh """
                         cd /output
                         lein uberjar
-                    """*/
-                    }
+                    """
+                    }*/
                 }
             }
         }
