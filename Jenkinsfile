@@ -29,14 +29,14 @@ pipeline {
                 script {
                     echo "ACCOUNT_REGISTRY_PREFIX: ${env.ACCOUNT_REGISTRY_PREFIX}"
                     def builderImage = docker.build("${env.ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${env.GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
-                    /*builderImage.push()
+                    builderImage.push()
                     builderImage.push("${env.env.BRANCH_NAME}")
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
                     sh """
                         cd /output
                         lein uberjar
                     """
-                    }*/
+                    }
                 }
             }
         }
