@@ -32,7 +32,7 @@ pipeline {
                     if (!tagName.matches(/^[a-zA-Z0-9_][a-zA-Z0-9_\.-]{0,127}/)) {
                         error "Invalid Docker tag: ${tagName}"
                     }
-                    //def builderImage = docker.build('crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:${env.GIT_COMMIT_HASH}', '-f Dockerfile.builder .')
+                    //def builderImage = docker.build("crpi-rxm100aep1nibg3h.cn-hangzhou.personal.cr.aliyuncs.com/a1025z/example-webapp-builder:${env.GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
                     /*builderImage.push()
                     builderImage.push("${env.env.BRANCH_NAME}")
                     builderImage.inside('-v $WORKSPACE:/output -u root') {
