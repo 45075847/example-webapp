@@ -18,7 +18,7 @@ pipeline {
                     echo "Git Commit Hash: ${GIT_COMMIT_HASH}"
                     env.GIT_COMMIT_HASH = GIT_COMMIT_HASH
                     echo 'Logging into the Private Registry'
-                    sh 'docker login --username=a1025z --password=Wldofdm999$ ${ACCOUNT_REGISTRY_PREFIX}'
+                    sh "docker login --username=a1025z --password=Wldofdm999$ ${ACCOUNT_REGISTRY_PREFIX}"
                 }
             }
         }
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 echo 'Starting to build the project builder docker image'
                 script {
-                    echo ACCOUNT_REGISTRY_PREFIX
+                    echo "ACCOUNT_REGISTRY_PREFIX: ${ACCOUNT_REGISTRY_PREFIX}"
                     def builderImage = docker.build("${ACCOUNT_REGISTRY_PREFIX}/example-webapp-builder:${env.GIT_COMMIT_HASH}", "-f Dockerfile.builder .")
                     /*builderImage.push()
                     builderImage.push("${env.env.BRANCH_NAME}")
