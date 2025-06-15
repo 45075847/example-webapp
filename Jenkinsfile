@@ -72,7 +72,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Production fixed server') {  
+        stage('Deploy to Production - Fixed S+erver') {  
             when {
                 branch 'release'
             }
@@ -84,6 +84,21 @@ pipeline {
                     /*sh """
                       aws ec2 reboot-instances --region us-east-1 --instance-ids i-0e438e2bf64427c9d
                     """
+                    */
+                }
+            }
+        }
+
+        stage('Deploy to Production - AWS CloudFormation') {
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    PRODUCTION_ALB_LISTENER_ARN="arn:aws:elasticloadbalancing:us-east-1:089778365617:listener/"
+                    /*sh '''
+                        ./run-stack.sh example-webapp-production ${PRODUCTION_ALB_LISTENER_ARN}
+                    '''
                     */
                 }
             }
